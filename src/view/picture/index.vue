@@ -35,7 +35,6 @@
             showBig(obj) {
                 this.$electron.ipcRenderer.send('toggle-image', obj.link)
                 this.$electron.ipcRenderer.on('toggle-image-reply', (evt, args) => {
-                    // TODO 这里返回的是一个数组
                     this.$store.dispatch('setImgLink', args)
                 })
             }

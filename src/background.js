@@ -17,23 +17,18 @@ protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 600, webPreferences: {
-    nodeIntegration: true
-  } })
-    imageWin = new BrowserWindow({
-        width: 1200,
-        height: 800,
-        parent: win,
-        show: false,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    })
+  win = new BrowserWindow({ 
+    width: 1200, 
+    height: 800, 
+    webPreferences: {
+      nodeIntegration: true
+    } 
+  })
+    
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-      imageWin.loadURL(process.env.WEBPACK_DEV_SERVER_URL + '/#/picdetail')
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
@@ -43,6 +38,28 @@ function createWindow () {
 
   win.on('closed', () => {
     win = null
+  })
+}
+
+function createNewWindow(arg) {
+  console.log('打开新窗口')
+  imageWin = new BrowserWindow({
+        width: 800,
+        height: 600,
+        parent: win,
+        show: false,
+        webPreferences: {
+            nodeIntegration: true
+        }
+    })
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    // TODO 要求实现给新窗口传递参数
+      imageWin.loadURL(process.env.WEBPACK_DEV_SERVER_URL + '/#/picdetail')
+      if (!process.env.IS_TEST) imageWin.webContents.openDevTools()
+  }
+  imageWin.show()
+  imageWin.on('closed', () => {
+    imageWin = null
   })
 }
 
@@ -85,8 +102,8 @@ app.on('ready', async () => {
 })
 
 ipcMain.on('toggle-image', (event, arg) => {
-    imageWin.show()
     event.sender.send('toggle-image-reply', arg)
+    createNewWindow(arg)
 })
 
 // Exit cleanly on request from parent process in development mode.
